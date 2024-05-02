@@ -3,6 +3,7 @@ import Navbar from "../../components/navbar/navbar";
 import "./home.css";
 import icons from "../../styles/icons";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
     
@@ -17,11 +18,34 @@ const Home = () => {
         {id: 8, icon: "https://jornadajs-devpoint.s3.amazonaws.com/icon-viagem.png", categoria: "Viagem", descricao: "Hotel", valor: 330}
     ];
 
+    let dadosFiltrados = [
+        {id: 1, icon: "https://jornadajs-devpoint.s3.amazonaws.com/icon-carro.png", categoria: "Carro", descricao: "Pagamento IPVA", valor: 2500},
+    ];
 
+
+    const navigate = useNavigate(); 
     const [despesa, setDespesa] = useState([]);
+    const [total, setTotal] = useState(0);
 
-    const ListarDespesa = () => {
-        setDespesa(dados);
+    const ListarDespesa = (filtro) => {
+        if (filtro)
+            dados = dadosFiltrados;
+        
+            let soma = 0;
+            for (var i=0; i < dados.length; i++){
+                soma = soma + dados[i].valor;
+            }
+
+       setTotal(soma);
+       setDespesa(dados);
+    }
+
+    const OpenDepesa = (id) =>{
+        navigate("/despesa/" + id);
+    }
+
+    const DeleteDepesa = (id) =>{
+        alert(id);
     }
 
     useEffect(() => {
@@ -30,11 +54,13 @@ const Home = () => {
     
     return <>
         <Sidebar />
-        <Navbar />
+        <Navbar onClickSearch={ListarDespesa} 
+                total={total}
+                search={true}/>
         <div className="container-home">
             <div className="title-home">
                 <h1>Despesas</h1>
-                <button className="btn btn-green">Adicionar Despesa</button>
+                <button onClick={() => navigate("/despesa/add")} className="btn btn-green">Adicionar Despesa</button>
             </div>
 
             <div className="box-despesa">
@@ -51,17 +77,19 @@ const Home = () => {
                     <tbody>
                         {
                             despesa.map((desp) => {
-                                return <tr key={desp}>
-                                <td>{desp}</td>
+                                return <tr>
+                                <td>{desp.id}</td>
                                 <td>{desp.descricao}</td>
                                 <td>{desp.categoria}</td>
                                 <td className="text-right">
-                                    R$ {desp.valor.toLocaleString('pt-BR',  { minimumFractionDigits: 2 })}
+                                R$ {desp.valor.toLocaleString('pt-BR',  { minimumFractionDigits: 2 })}
                                     </td>
-                                <td className="text-right"><button className="btn btn-blue">
-                                        <img className="icon-sm" src={icons.edit} />    
+                                <td className="text-right">
+                                    <button onClick={() => OpenDepesa(desp.id)}
+                                             className="btn btn-blue">
+                                        <img  className="icon-sm" src={icons.edit} />    
                                     </button>
-                                    <button className="btn btn-red ml-10">
+                                    <button onClick={() => DeleteDepesa(desp.id)} className="btn btn-red ml-10">
                                         <img className="icon-sm" src={icons.remove} />
                                     </button>
                                 </td>
