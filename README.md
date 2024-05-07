@@ -1,1 +1,1 @@
-Project Money Web.
+Project Money Web - Jornada JS.
