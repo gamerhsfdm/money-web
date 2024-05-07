@@ -4,6 +4,9 @@ import "./home.css";
 import icons from "../../styles/icons";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/api.js";
+import { confirmAlert } from "react-confirm-alert";
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const Home = () => {
     
@@ -27,17 +30,28 @@ const Home = () => {
     const [despesa, setDespesa] = useState([]);
     const [total, setTotal] = useState(0);
 
-    const ListarDespesa = (filtro) => {
-        if (filtro)
-            dados = dadosFiltrados;
-        
+    const ListarDespesa = async (busca) => {
+       
+        try{
+            // Acessar os dados na API...
+            const response = await api.get("/despesas", {
+                params: {
+                    filtro: busca
+                }
+            })
+
+            setDespesa(response.data);
+
             let soma = 0;
-            for (var i=0; i < dados.length; i++){
-                soma = soma + dados[i].valor;
+             for (var i=0; i < response.data.length; i++){
+                soma = soma + Number(response.data[i].valor);
             }
 
-       setTotal(soma);
-       setDespesa(dados);
+            setTotal(soma);
+        } catch(error){
+            alert("Erro ao buscar dados")
+            console.log(error);
+        }
     }
 
     const OpenDepesa = (id) =>{
@@ -45,7 +59,28 @@ const Home = () => {
     }
 
     const DeleteDepesa = (id) =>{
-        alert(id);
+        try {
+
+            confirmAlert({
+                title: "Exclusão",
+                message: "Confirma a exclusão da despesa?",
+                buttons: [{
+                    label: "Sim",
+                    onClick: async () => {
+                        await api.delete("/despesas/" + id);
+                        ListarDespesa();
+                    }
+                },
+            {
+                label: "Não",
+                onClick: () => {
+
+                }
+            }]
+            });
+        } catch (error) {
+            
+        }
     }
 
     useEffect(() => {
@@ -80,9 +115,14 @@ const Home = () => {
                                 return <tr>
                                 <td>{desp.id}</td>
                                 <td>{desp.descricao}</td>
-                                <td>{desp.categoria}</td>
+                                <td>
+                                    <div>
+                                    <img className="icon-sm" src={desp.categoriaDetalhe.icon} />
+                                    <span className="ml-10">{desp.categoria}</span> 
+                                    </div>
+                                    </td>
                                 <td className="text-right">
-                                R$ {desp.valor.toLocaleString('pt-BR',  { minimumFractionDigits: 2 })}
+                                R$ {Number(desp.valor).toLocaleString('pt-BR',  { minimumFractionDigits: 2 })}
                                     </td>
                                 <td className="text-right">
                                     <button onClick={() => OpenDepesa(desp.id)}
@@ -98,6 +138,13 @@ const Home = () => {
                         }
                     </tbody>
                 </table>
+
+                {
+                    despesa.length == 0 && <div className="empty-despesa">
+                        <img src={icons.empty} />
+                        <p>Nenhuma despesa encontrada</p>
+                    </div>
+                }
             </div>
         </div>
     </>

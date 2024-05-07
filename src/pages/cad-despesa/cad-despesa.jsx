@@ -3,6 +3,7 @@ import Sidebar from "../../components/sidebar/sidebar";
 import Navbar from "../../components/navbar/navbar";
 import "./cad-despesa.css";
 import { useEffect, useState } from "react";
+import api from "../../services/api.js";
 
 // function CadDespesa(){}
 const CadDespesa = () => {
@@ -14,17 +15,42 @@ const CadDespesa = () => {
     const [descricao, setDescricao] = useState("");
     const [categoria, setCategoria] = useState("");
 
-    const SalvarDados = () => {
-        navigate("/");
+    const SalvarDados = async () => {
+        try {
+            if (idUrl != "add"){
+                await api.put("/despesas/" + idUrl, {
+                    descricao: descricao,
+                    valor: valor,
+                    categoria: categoria
+                });
+            } else {
+                await api.post("/despesas", {
+                    descricao: descricao,
+                    valor: valor,
+                    categoria: categoria
+                });
+            }
+            
+            navigate("/");
+        } catch (error) {
+            
+        }        
     }
 
-    const GetDadosDespesa = (id) => {
-        // Faz o GET na API...
-        
-        setValor(150);
-        setDescricao("Compras no mercado");
-        setCategoria("Mercado");
-
+    const GetDadosDespesa = async (id) => {
+        try{
+            // Faz o GET na API...
+            
+            const response = await api.get("/despesas/" + id)
+            
+            setValor(response.data.valor);
+            setDescricao(response.data.descricao);
+            setCategoria(response.data.categoria);
+            
+        } catch(error){
+            alert("Erro ao buscar dados");
+            console.log(error);
+        }
     }
 
     useEffect(() => {
