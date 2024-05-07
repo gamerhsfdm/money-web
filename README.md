@@ -3,5 +3,5 @@
 </p>
 
 <p align="center">
-  Controle duas despesas de forma descomplicada 💰
+  Controle suas despesas de forma descomplicada 💰
 </p>
