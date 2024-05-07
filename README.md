@@ -1,5 +1,3 @@
-Project Money Web - Jornada JS.
-
 <p align="center">
   <img src="https://github.com/devpoint-oficial/money-web/blob/master/src/assets/logo.png" width: "160">
 </p>
